@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# opencode-sandbox – final, perfect, easy-to-maintain version (2025)
+
+set -euo pipefail
+
+TARGET_EXECUTABLE="/usr/bin/opencode"
+
+if [ ! -f "${TARGET_EXECUTABLE}" ]; then
+    echo "Executable missing : ${TARGET_EXECUTABLE}"
+fi
+
+# Save current-folder as that will be mapped in as read-write and the current folder we execute in.
+CURRENT_FOLDER=${PWD}
+
+# Resolve the real binary path (follows alternatives, flatpak, etc.)
+REAL_COMMAND="$(readlink -f "$TARGET_EXECUTABLE")"
+
+# Build the full bwrap argument array
+bwrap_args=(
+    bwrap
+    --unshare-all
+    # Still allow networking after dropping other privileges.
+    --share-net
+    --unshare-pid
+    # cleaner /proc/1
+    --new-session
+    --die-with-parent
+    --as-pid-1
+    --cap-drop ALL
+
+    # These two must be among the very first mounts
+    --proc /proc
+    --dev  /dev
+
+    --tmpfs /tmp
+    --tmpfs /run
+    --ro-bind-try /sys/block   /sys/block
+    --ro-bind-try /sys/devices /sys/devices
+
+    --clearenv
+    --setenv COLORTERM "${COLORTERM}"
+    --setenv TERM "${TERM}"
+    --setenv LANG "${LANG}"
+    --setenv LC_ADDRESS "${LC_ADDRESS}"
+    --setenv LC_MONETARY "${LC_MONETARY}"
+    --setenv LC_PAPER "${LC_PAPER}"
+    --setenv LC_TELEPHONE "${LC_TELEPHONE}"
+    --setenv LC_MEASUREMENT "${LC_MEASUREMENT}"
+    --setenv LC_TIME "${LC_TIME}"
+    --setenv LC_NUMERIC "${LC_NUMERIC}"
+    --setenv LANGUAGE "${LANGUAGE}"
+    --setenv PWD "${CURRENT_FOLDER}"
+    --setenv HOME "${HOME}"
+    --setenv PATH "${PATH}"
+
+    --symlink usr/bin   /bin
+    --symlink usr/lib   /lib
+    --symlink usr/lib64 /lib64
+
+    --ro-bind-try /usr/bin    /usr/bin
+    --ro-bind-try /usr/lib    /usr/lib
+    --ro-bind-try /usr/lib64  /usr/lib64
+    --ro-bind-try /usr/include /usr/include
+
+
+    # For now just bindmount /etc. Should preferrably just have the files required, not everything.
+    --ro-bind-try /etc        /etc
+
+#    --tmpfs /etc
+#    --file  /etc/resolv.conf /etc/resolv.conf
+
+#     --symlink /usr/bin/false /usr/bin/systemctl
+
+    # Completely mask real $HOME
+    --tmpfs "$HOME"
+
+    # Read-only access to opencode config
+    --ro-bind-try "${HOME}/.config/opencode"  "${HOME}/.config/opencode"
+
+    # Setup the R/W available folders.
+    ## Go folder should probably be something opencode specific.
+    --bind-try    "${HOME}/go"                  "${HOME}/go"
+
+    --bind-try    "${HOME}/.bun"                  "${HOME}/.cache/.bun"
+    --bind-try    "${HOME}/.cache/opencode"       "${HOME}/.cache/opencode"
+    --bind-try    "${HOME}/.local/share/opencode" "${HOME}/.local/share/opencode"
+    --bind-try    "${HOME}/.local/state/opencode" "${HOME}/.local/state/opencode"
+    --bind-try    "${CURRENT_FOLDER}"             "${CURRENT_FOLDER}"
+)
+
+exec "${bwrap_args[@]}" -- "$REAL_COMMAND" "$@"
+
