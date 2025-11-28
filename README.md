@@ -1,6 +1,7 @@
 
 # Simple bubblewrap script for running opencode.
 
+This script makes opencode run in a secure context where it only gets write-access to the project-folder you launch it in.
 
 ## Prerequsites
  
@@ -40,10 +41,10 @@ $ opencode --whatever
 
 ## Notes
 - If opencode is located anywhere else than /usr/bin/opencode you need to update the hardcoded path
-- This has been tested on ArchLinux so required path's may be different for /usr/lib etc.
+- This has been tested on ArchLinux so required path's on your system be different.
 
 
 ## Toubleshooting
-- Replace /usr/bin/opencode in the script with /usr/bin/bash and run it. Allows you to look around within the the container to see what's available. 
+- Replace /usr/bin/opencode in the script with /usr/bin/bash and run it. Allows you to look around within the the container to see what's available.
 
 
