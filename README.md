@@ -9,8 +9,6 @@ This script makes opencode run in a secure context where it only gets write-acce
 Install 'bubblewrap' package on your system. This should most probably be available via your package manager.
 
 ### opencode
-This may differ and may need tweaks to the opencode script in this repo.
-
 On ArchLinux:
 ```
 $ yay opencode
