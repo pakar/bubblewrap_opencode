@@ -6,7 +6,7 @@
 ### Bubblewrap
 Install 'bubblewrap' package on your system. This should most probably be available via your package manager.
 
-### Install 'opencode'
+### opencode
 This may differ and may need tweaks to the opencode script in this repo.
 
 On ArchLinux:
