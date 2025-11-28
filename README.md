@@ -1,6 +1,22 @@
 
 # Simple bubblewrap script for running opencode in it's own namespace.
 
+## Prerequsites
+ 
+### Bubblewrap
+Install 'bubblewrap' package on your system. This should most probably be available via your package manager.
+
+### Install 'opencode'
+This may differ and may need tweaks to the opencode script in this repo.
+
+On ArchLinux:
+```
+$ yay opencode
+```
+
+On other distributions you need to check what folders things get installed in and update the opencode script with more read-only bind's.
+
+
 ## Setup
 
 * Add the script to : ~/.local/my_scripts/
